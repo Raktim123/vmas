@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StopageController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\VehicleStopageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,10 +18,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// })->middleware(['auth', 'verified']);
+Route::get('/', function () {
+    return view('welcome');
+})->middleware(['auth', 'verified']);
 
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified']);
+
+Route::middleware('auth')->group(function () {
+    Route::resource('stopages', StopageController::class);
+    Route::resource('vehicles', VehicleController::class);
+    Route::resource('students', StudentController::class);
+
+    Route::get('vehicle-stopages/get-vehicle-stopages/{id}', [VehicleStopageController::class, "get_vehicle_stopages"]);
+    Route::resource('vehicle-stopages', VehicleStopageController::class);
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

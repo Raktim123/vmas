@@ -25,6 +25,8 @@ return new class extends Migration
             $table->string('driver_phone');
             $table->string('helper_name');
             $table->string('helper_phone');
+            $table->string('seats');
+            $table->string('department');
             $table->timestamps();
         });
     }

@@ -55,6 +55,8 @@ class VehicleController extends Controller
             'driver_phone' => 'required|string|max:255',
             'helper_name' => 'required|string|max:255',
             'helper_phone' => 'required|string|max:255',
+            'seats' => 'required|integer',
+            'department' => 'required|string|max:255',
         ]);
 
         // If validation fails, redirect back with pre-filled values
@@ -75,6 +77,8 @@ class VehicleController extends Controller
         $vehicle->driver_phone = $request->input('driver_phone');
         $vehicle->helper_name = $request->input('helper_name');
         $vehicle->helper_phone = $request->input('helper_phone');
+        $vehicle->seats = $request->input('seats');
+        $vehicle->department = $request->input('department');
         
         $vehicle->save();
 
@@ -106,6 +110,8 @@ class VehicleController extends Controller
             'driver_phone' => 'required|string|max:255',
             'helper_name' => 'required|string|max:255',
             'helper_phone' => 'required|string|max:255',
+            'seats' => 'required|integer',
+            'department' => 'required|string|max:255',
         ]);
 
         $vehicle->registration_no = $request->input('registration_no');
@@ -120,6 +126,8 @@ class VehicleController extends Controller
         $vehicle->driver_phone = $request->input('driver_phone');
         $vehicle->helper_name = $request->input('helper_name');
         $vehicle->helper_phone = $request->input('helper_phone');
+        $vehicle->seats = $request->input('seats');
+        $vehicle->department = $request->input('department');
 
         $vehicle->save();
 

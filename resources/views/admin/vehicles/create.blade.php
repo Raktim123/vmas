@@ -14,7 +14,7 @@
                 <form class="row g-3" method="POST" action="{{ route('vehicles.store') }}">
                     @csrf
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <label for="registration_no" class="form-label">Registration No:</label>
                             <input type="text" class="form-control @error('registration_no') is-invalid @enderror" id="registration_no" name="registration_no" value="{{ old('registration_no') }}" required>
                             @error('registration_no')
@@ -23,12 +23,33 @@
                                 </span>
                             @enderror
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <label for="identity_no" class="form-label">Identity No:</label>
                             <input type="text" class="form-control @error('identity_no') is-invalid @enderror" id="identity_no" name="identity_no" value="{{ old('identity_no') }}" required>
                             @error('identity_no')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $errors->first('identity_no') }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                        <div class="col-md-3">
+                            <label for="seats" class="form-label">Seats:</label>
+                            <input type="text" class="form-control @error('seats') is-invalid @enderror" id="seats" name="seats" value="{{ old('seats') }}" required>
+                            @error('seats')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $errors->first('seats') }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                        <div class="col-md-3">
+                            <label for="seats" class="form-label">Department:</label>
+                            <select class="form-control" name="department">
+                                <option value="primary">Primary Department</option>
+                                <option value="high">High Department</option>
+                            </select>
+                            @error('seats')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $errors->first('seats') }}</strong>
                                 </span>
                             @enderror
                         </div>

@@ -3,10 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\AcademyClass;
+use App\Models\Fees;
+use App\Models\SeatReservation;
 use App\Models\Section;
 use App\Models\Stopage;
 use App\Models\Student;
+use App\Models\Vehicle;
+use App\Models\VehicleStopage;
+use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
@@ -15,7 +22,9 @@ class StudentController extends Controller
      */
     public function index()
     {
-        //
+        $students = Student::all();
+
+        return view('admin.students.index', compact("students"));
     }
 
     /**
@@ -26,7 +35,13 @@ class StudentController extends Controller
         $classes  = AcademyClass::all();
         $sections = Section::all();
         $stopages = Stopage::all();
-        return view("admin.students.create", compact("classes", "sections", "stopages"));
+
+        if(Auth::check()) {
+            return view("admin.students.create", compact("classes", "sections", "stopages"));
+        }
+        else {
+            return view("online-admission", compact("classes", "sections", "stopages"));
+        }
     }
 
     /**
@@ -57,7 +72,7 @@ class StudentController extends Controller
             $student->student_image = $request->file('student_image')->store('public/images');
         }
 
-        $student->student_id = $request->student_id;
+        $student->student_id = time();
         $student->roll = $request->roll;
         $student->student_name = $request->student_name;
         $student->father_name = $request->father_name;
@@ -69,9 +84,33 @@ class StudentController extends Controller
         $student->dob = $request->dob;
         $student->remarks = $request->remarks;
         $student->academy_class_id = $request->class_id;
-        $student->section_id = $request->section_id;
         // Save the student record
         $student->save();
+
+        $admission_fees = new Fees();
+        $admission_fees->student_id = $student->id;
+        $admission_fees->payment_amount = 50;
+        $admission_fees->payment_for = "admission";
+        $admission_fees->payment_mode = "offline";
+        $admission_fees->payment_date = date('Y-m-d');
+        $admission_fees->save();
+
+        if($request->collect_monthly_fees) {
+            $stopage = Stopage::find($request->pickup_point);
+
+            $currentDate = new DateTime();
+            $currentDate->modify('+'. $request->number_of_months. 'months');
+
+            $monthly_fees = new Fees();
+            $monthly_fees->student_id = $student->id;
+            $monthly_fees->payment_amount = $stopage->fare * $request->number_of_months;
+            $monthly_fees->payment_for = "monthly";
+            $monthly_fees->payment_mode = "offline";
+            $monthly_fees->payment_date = date('Y-m-d');
+            $monthly_fees->from_date = $request->reserve_from;
+            $monthly_fees->to_date = $currentDate->format('Y-m-d');
+            $monthly_fees->save();
+        }
 
         // Optionally, you can redirect to a success page or return a response
         return redirect()->route('students.index')->with('success', 'Student record created successfully!');
@@ -107,5 +146,30 @@ class StudentController extends Controller
     public function destroy(Student $student)
     {
         //
+    }
+
+    public function check_seat(Request $request)
+    {
+        $class_id = $request->class_id;
+        $stopage_id = $request->stopage_id;
+
+        if($class_id <= 8) {
+            $data = DB::table("vehicles")
+            ->select("vehicles.*")
+            ->join("vehicle_stopages", "vehicles.id", "=", "vehicle_stopages.vehicle_id")
+            ->where(["vehicles.department" => "primary", "vehicle_stopages.stopage_id" => $stopage_id])
+            ->get();
+        }
+        else {
+            $data = DB::table("vehicles")
+            ->select("vehicles.*")
+            ->join("vehicle_stopages", "vehicles.id", "=", "vehicle_stopages.vehicle_id")
+            ->where(["vehicles.department" => "high", "vehicle_stopages.stopage_id" => $stopage_id])
+            ->get();
+        }
+
+        $remaining_seats = $data[0]->seats - count($data);
+
+        return response()->json($data[0]);
     }
 }

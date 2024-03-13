@@ -22,11 +22,14 @@ Route::get('/', function () {
     return view('welcome');
 })->middleware(['auth', 'verified']);
 
+Route::get('/online-admission', [StudentController::class, "create"]);
+Route::post('/check-seat', [StudentController::class, "check_seat"])->name('check_seat')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);;
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified']);
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('stopages', StopageController::class);
     Route::resource('vehicles', VehicleController::class);
     Route::resource('students', StudentController::class);
